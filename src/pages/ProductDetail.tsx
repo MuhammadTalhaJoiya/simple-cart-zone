@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Star, ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -7,7 +6,21 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useCart } from '@/hooks/useCart';
 
 // Mock product data (in real app, this would come from API)
-const productData = {
+const productData: Record<number, {
+  id: number;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  images: string[];
+  rating: number;
+  reviews: number;
+  category: string;
+  inStock: boolean;
+  stockCount: number;
+  description: string;
+  features: string[];
+  specifications: Record<string, string>;
+}> = {
   1: {
     id: 1,
     name: "Premium Wireless Headphones",
@@ -50,7 +63,9 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedTab, setSelectedTab] = useState('description');
 
-  const product = productData[id as keyof typeof productData];
+  // Convert string id to number and safely access product data
+  const productId = id ? parseInt(id, 10) : null;
+  const product = productId ? productData[productId] : null;
 
   if (!product) {
     return (
