@@ -1,15 +1,17 @@
 
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, User, Search, Menu, X } from 'lucide-react';
+import { ShoppingCart, User, Search, Menu, X, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/hooks/useCart';
+import { useAuth } from '@/hooks/useAuth';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
   const { getCartItemsCount } = useCart();
+  const { user, signOut, loading } = useAuth();
   
   const cartItemsCount = getCartItemsCount();
 
@@ -20,6 +22,10 @@ const Navbar = () => {
   ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
@@ -66,18 +72,34 @@ const Navbar = () => {
 
           {/* Actions */}
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm" asChild className="hidden md:flex">
-              <Link to="/login">
-                <User className="w-4 h-4 mr-2" />
-                Login
-              </Link>
-            </Button>
+            {!loading && (
+              <>
+                {user ? (
+                  <div className="hidden md:flex items-center space-x-2">
+                    <span className="text-sm text-gray-600">
+                      Welcome, {user.user_metadata?.first_name || user.email}
+                    </span>
+                    <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </Button>
+                  </div>
+                ) : (
+                  <Button variant="ghost" size="sm" asChild className="hidden md:flex">
+                    <Link to="/login">
+                      <User className="w-4 h-4 mr-2" />
+                      Login
+                    </Link>
+                  </Button>
+                )}
+              </>
+            )}
             
             <Button variant="ghost" size="sm" asChild className="relative">
               <Link to="/cart">
                 <ShoppingCart className="w-4 h-4" />
                 {cartItemsCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold">
                     {cartItemsCount > 9 ? '9+' : cartItemsCount}
                   </span>
                 )}
@@ -127,14 +149,31 @@ const Navbar = () => {
                 </Link>
               ))}
               
-              <Link
-                to="/login"
-                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <User className="w-4 h-4 inline mr-2" />
-                Login
-              </Link>
+              {!loading && (
+                <>
+                  {user ? (
+                    <button
+                      onClick={() => {
+                        handleSignOut();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="block w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
+                    >
+                      <LogOut className="w-4 h-4 inline mr-2" />
+                      Logout
+                    </button>
+                  ) : (
+                    <Link
+                      to="/login"
+                      className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <User className="w-4 h-4 inline mr-2" />
+                      Login
+                    </Link>
+                  )}
+                </>
+              )}
             </div>
           </div>
         )}
