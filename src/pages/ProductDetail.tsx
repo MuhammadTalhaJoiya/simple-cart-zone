@@ -53,6 +53,100 @@ const productData: Record<number, {
       "Battery Life": "30 hours",
       "Charging Time": "2 hours"
     }
+  },
+  2: {
+    id: 2,
+    name: "Smart Fitness Watch",
+    price: 199.99,
+    images: [
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=600&h=600&fit=crop"
+    ],
+    rating: 4.6,
+    reviews: 89,
+    category: "Wearables",
+    inStock: true,
+    stockCount: 25,
+    description: "Stay connected and track your fitness goals with this advanced smartwatch featuring heart rate monitoring, GPS tracking, and smartphone integration.",
+    features: [
+      "Heart rate monitoring",
+      "GPS tracking",
+      "Water resistant (50M)",
+      "7-day battery life",
+      "Sleep tracking",
+      "Smartphone notifications"
+    ],
+    specifications: {
+      "Display": "1.4 inch AMOLED",
+      "Battery Life": "7 days",
+      "Water Resistance": "50M",
+      "Connectivity": "Bluetooth 5.0",
+      "Sensors": "Heart Rate, GPS, Accelerometer",
+      "Weight": "45g"
+    }
+  },
+  3: {
+    id: 3,
+    name: "Professional Camera Lens",
+    price: 849.99,
+    images: [
+      "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=600&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=600&h=600&fit=crop"
+    ],
+    rating: 4.9,
+    reviews: 67,
+    category: "Photography",
+    inStock: true,
+    stockCount: 8,
+    description: "Professional-grade camera lens perfect for portrait and landscape photography with exceptional image quality and build construction.",
+    features: [
+      "Ultra-sharp optics",
+      "Weather sealed construction",
+      "Fast autofocus",
+      "Image stabilization",
+      "Professional build quality",
+      "Compatible with multiple mounts"
+    ],
+    specifications: {
+      "Focal Length": "85mm",
+      "Aperture": "f/1.4",
+      "Mount": "Canon EF",
+      "Weight": "1.2kg",
+      "Filter Thread": "77mm",
+      "Minimum Focus": "0.85m"
+    }
+  },
+  4: {
+    id: 4,
+    name: "Ergonomic Office Chair",
+    price: 449.99,
+    originalPrice: 599.99,
+    images: [
+      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1592078615290-033ee584e267?w=600&h=600&fit=crop"
+    ],
+    rating: 4.7,
+    reviews: 156,
+    category: "Furniture",
+    inStock: true,
+    stockCount: 12,
+    description: "Premium ergonomic office chair designed for comfort and productivity during long work sessions with advanced lumbar support and adjustable features.",
+    features: [
+      "Adjustable lumbar support",
+      "Breathable mesh back",
+      "Height adjustable",
+      "360-degree swivel",
+      "Smooth rolling casters",
+      "Armrest adjustment"
+    ],
+    specifications: {
+      "Material": "Mesh and Fabric",
+      "Weight Capacity": "150kg",
+      "Seat Height": "42-52cm adjustable",
+      "Dimensions": "68 x 68 x 108-118cm",
+      "Warranty": "5 years",
+      "Assembly": "Required"
+    }
   }
 };
 
@@ -69,7 +163,7 @@ const ProductDetail = () => {
 
   if (!product) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center mt-16">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
           <Button asChild>
@@ -100,7 +194,7 @@ const ProductDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 mt-16">
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-8">

@@ -60,7 +60,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-blue-600 to-purple-700 text-white overflow-hidden">
+      <section className="relative bg-gradient-to-r from-blue-600 to-purple-700 text-white overflow-hidden mt-16">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="relative container mx-auto px-4 py-24">
           <div className="max-w-2xl">
@@ -75,7 +75,7 @@ const Index = () => {
                 <Link to="/products">Shop Now</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
-                <Link to="/categories">Browse Categories</Link>
+                <Link to="/products">Browse Products</Link>
               </Button>
             </div>
           </div>
@@ -165,7 +165,7 @@ const Index = () => {
                   <Button asChild className="w-full group/btn">
                     <Link to={`/product/${product.id}`}>
                       <ShoppingCart className="w-4 h-4 mr-2 group-hover/btn:animate-bounce" />
-                      View Product
+                      View Details
                     </Link>
                   </Button>
                 </CardContent>
