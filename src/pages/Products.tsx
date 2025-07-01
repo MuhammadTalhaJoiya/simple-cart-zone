@@ -1,10 +1,10 @@
-
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Star, Filter, Grid, List, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useCart } from '@/hooks/useCart';
+import { useCartContext } from '@/contexts/CartContext';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock products data
 const products = [
@@ -89,9 +89,10 @@ const sortOptions = [
 const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("name");
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode<'grid' | 'list'>('grid');
   const [priceRange, setPriceRange] = useState([0, 1000]);
-  const { addToCart } = useCart();
+  const { addToCart } = useCartContext();
+  const { toast } = useToast();
 
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = products.filter(product => {
@@ -100,7 +101,6 @@ const Products = () => {
       return categoryMatch && priceMatch;
     });
 
-    // Sort products
     filtered.sort((a, b) => {
       switch (sortBy) {
         case "name":
@@ -120,25 +120,48 @@ const Products = () => {
   }, [selectedCategory, sortBy, priceRange]);
 
   const handleAddToCart = (product: any) => {
-    addToCart({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image
-    });
+    if (!product.inStock) {
+      toast({
+        title: "Item Unavailable",
+        description: "This item is currently out of stock.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image
+      });
+      
+      toast({
+        title: "Added to Cart",
+        description: `${product.name} has been added to your cart.`,
+      });
+      
+      console.log(`Added to cart: ${product.name} (ID: ${product.id})`);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add item to cart. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Products</h1>
           <p className="text-gray-600">Discover our amazing collection of products</p>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filters Sidebar */}
           <div className="lg:w-64 space-y-6">
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
@@ -146,7 +169,6 @@ const Products = () => {
                 Filters
               </h3>
               
-              {/* Categories */}
               <div className="mb-6">
                 <h4 className="font-medium text-gray-900 mb-3">Categories</h4>
                 <div className="space-y-2">
@@ -166,7 +188,6 @@ const Products = () => {
                 </div>
               </div>
 
-              {/* Price Range */}
               <div>
                 <h4 className="font-medium text-gray-900 mb-3">Price Range</h4>
                 <div className="space-y-3">
@@ -187,9 +208,7 @@ const Products = () => {
             </div>
           </div>
 
-          {/* Main Content */}
           <div className="flex-1">
-            {/* Controls */}
             <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <p className="text-gray-600">
@@ -197,7 +216,6 @@ const Products = () => {
                 </p>
                 
                 <div className="flex items-center gap-4">
-                  {/* Sort Dropdown */}
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
@@ -210,7 +228,6 @@ const Products = () => {
                     ))}
                   </select>
 
-                  {/* View Mode Toggle */}
                   <div className="flex border border-gray-300 rounded-md">
                     <button
                       onClick={() => setViewMode('grid')}

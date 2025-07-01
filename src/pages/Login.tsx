@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
@@ -23,7 +22,6 @@ const Login = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Redirect authenticated users to home page
   useEffect(() => {
     if (user) {
       navigate('/');
@@ -43,28 +41,39 @@ const Login = () => {
 
     try {
       if (isLogin) {
+        console.log('Attempting to sign in with:', formData.email);
         const { error } = await signIn(formData.email, formData.password);
+        
         if (error) {
-          if (error.message.includes('Email not confirmed')) {
+          console.error('Sign in error:', error);
+          
+          if (error.message.includes('Email not confirmed') || error.message.includes('email_not_confirmed')) {
             toast({
               title: "Email Not Verified",
               description: "Please check your email and click the verification link before signing in. Check your spam folder if needed.",
               variant: "destructive"
             });
-          } else if (error.message.includes('Invalid login credentials')) {
+          } else if (error.message.includes('Invalid login credentials') || error.message.includes('invalid_credentials')) {
             toast({
               title: "Invalid Credentials",
-              description: "Please check your email and password and try again.",
+              description: "The email or password you entered is incorrect. Please check and try again.",
+              variant: "destructive"
+            });
+          } else if (error.message.includes('Too many requests')) {
+            toast({
+              title: "Too Many Attempts",
+              description: "Too many login attempts. Please wait a moment before trying again.",
               variant: "destructive"
             });
           } else {
             toast({
               title: "Login Failed",
-              description: error.message,
+              description: error.message || "An unexpected error occurred. Please try again.",
               variant: "destructive"
             });
           }
         } else {
+          console.log('Sign in successful');
           toast({
             title: "Welcome back!",
             description: "You have successfully logged in.",
@@ -80,29 +89,64 @@ const Login = () => {
           return;
         }
 
+        if (formData.password.length < 6) {
+          toast({
+            title: "Password Too Short",
+            description: "Password must be at least 6 characters long.",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        console.log('Attempting to sign up with:', formData.email);
         const { error } = await signUp(formData.email, formData.password, formData.firstName, formData.lastName);
+        
         if (error) {
-          if (error.message.includes('User already registered')) {
+          console.error('Sign up error:', error);
+          
+          if (error.message.includes('User already registered') || error.message.includes('already_registered')) {
             toast({
               title: "Account Already Exists",
               description: "An account with this email already exists. Please sign in instead.",
               variant: "destructive"
             });
+          } else if (error.message.includes('Password should be at least')) {
+            toast({
+              title: "Password Requirements",
+              description: "Password must be at least 6 characters long.",
+              variant: "destructive"
+            });
+          } else if (error.message.includes('Unable to validate email address')) {
+            toast({
+              title: "Invalid Email",
+              description: "Please enter a valid email address.",
+              variant: "destructive"
+            });
           } else {
             toast({
               title: "Sign Up Failed",
-              description: error.message,
+              description: error.message || "An unexpected error occurred. Please try again.",
               variant: "destructive"
             });
           }
         } else {
+          console.log('Sign up successful');
           toast({
             title: "Account Created!",
             description: "Please check your email to verify your account before signing in.",
           });
+          // Clear form after successful signup
+          setFormData({
+            email: '',
+            password: '',
+            confirmPassword: '',
+            firstName: '',
+            lastName: ''
+          });
         }
       }
     } catch (error) {
+      console.error('Unexpected error:', error);
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
@@ -205,6 +249,7 @@ const Login = () => {
                   onChange={handleInputChange}
                   className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
+                  minLength={6}
                 />
                 <button
                   type="button"
@@ -226,6 +271,7 @@ const Login = () => {
                     onChange={handleInputChange}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required={!isLogin}
+                    minLength={6}
                   />
                 </div>
               )}
@@ -247,7 +293,6 @@ const Login = () => {
               </Button>
             </form>
 
-            {/* Email verification notice for login */}
             {isLogin && (
               <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <p className="text-sm text-blue-700">

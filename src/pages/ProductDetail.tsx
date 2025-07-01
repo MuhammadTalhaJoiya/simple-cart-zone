@@ -3,7 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { Star, ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useCart } from '@/hooks/useCart';
+import { useCartContext } from '@/contexts/CartContext';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock product data (in real app, this would come from API)
 const productData: Record<number, {
@@ -152,12 +153,12 @@ const productData: Record<number, {
 
 const ProductDetail = () => {
   const { id } = useParams();
-  const { addToCart } = useCart();
+  const { addToCart } = useCartContext();
+  const { toast } = useToast();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedTab, setSelectedTab] = useState('description');
 
-  // Convert string id to number and safely access product data
   const productId = id ? parseInt(id, 10) : null;
   const product = productId ? productData[productId] : null;
 
@@ -175,12 +176,37 @@ const ProductDetail = () => {
   }
 
   const handleAddToCart = () => {
-    for (let i = 0; i < quantity; i++) {
-      addToCart({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.images[0]
+    if (!product.inStock) {
+      toast({
+        title: "Item Unavailable",
+        description: "This item is currently out of stock.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      for (let i = 0; i < quantity; i++) {
+        addToCart({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.images[0]
+        });
+      }
+      
+      toast({
+        title: "Added to Cart",
+        description: `${quantity} x ${product.name} has been added to your cart.`,
+      });
+      
+      console.log(`Added ${quantity} x ${product.name} to cart`);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add item to cart. Please try again.",
+        variant: "destructive"
       });
     }
   };
@@ -239,7 +265,6 @@ const ProductDetail = () => {
               )}
             </div>
 
-            {/* Thumbnail Images */}
             {product.images.length > 1 && (
               <div className="flex space-x-2">
                 {product.images.map((image, index) => (
@@ -288,7 +313,6 @@ const ProductDetail = () => {
 
             <p className="text-gray-600 leading-relaxed">{product.description}</p>
 
-            {/* Stock Status */}
             <div className="flex items-center gap-2">
               <div className={`w-3 h-3 rounded-full ${product.inStock ? 'bg-green-500' : 'bg-red-500'}`}></div>
               <span className={`font-medium ${product.inStock ? 'text-green-600' : 'text-red-600'}`}>
@@ -296,7 +320,6 @@ const ProductDetail = () => {
               </span>
             </div>
 
-            {/* Quantity and Add to Cart */}
             {product.inStock && (
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
@@ -437,7 +460,6 @@ const ProductDetail = () => {
                   </div>
                 </div>
 
-                {/* Sample reviews */}
                 <div className="space-y-4">
                   <div className="border-b border-gray-100 pb-4">
                     <div className="flex items-center gap-2 mb-2">
