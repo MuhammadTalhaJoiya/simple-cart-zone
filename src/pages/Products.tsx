@@ -1,3 +1,4 @@
+
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Star, Filter, Grid, List, ShoppingCart } from 'lucide-react';
@@ -89,7 +90,7 @@ const sortOptions = [
 const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("name");
-  const [viewMode, setViewMode<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const { addToCart } = useCartContext();
   const { toast } = useToast();
