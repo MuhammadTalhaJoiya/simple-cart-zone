@@ -3,14 +3,14 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ShoppingCart, User, Search, Menu, X, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useCart } from '@/hooks/useCart';
+import { useCartContext } from '@/contexts/CartContext';
 import { useAuth } from '@/hooks/useAuth';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
-  const { getCartItemsCount } = useCart();
+  const { getCartItemsCount } = useCartContext();
   const { user, signOut, loading } = useAuth();
   
   const cartItemsCount = getCartItemsCount();
@@ -103,8 +103,8 @@ const Navbar = () => {
               <Link to="/cart">
                 <ShoppingCart className="w-5 h-5" />
                 {cartItemsCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold animate-pulse">
-                    {cartItemsCount > 9 ? '9+' : cartItemsCount}
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold shadow-lg animate-pulse">
+                    {cartItemsCount > 99 ? '99+' : cartItemsCount}
                   </span>
                 )}
               </Link>

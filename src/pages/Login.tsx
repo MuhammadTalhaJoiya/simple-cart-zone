@@ -45,11 +45,25 @@ const Login = () => {
       if (isLogin) {
         const { error } = await signIn(formData.email, formData.password);
         if (error) {
-          toast({
-            title: "Login Failed",
-            description: error.message,
-            variant: "destructive"
-          });
+          if (error.message.includes('Email not confirmed')) {
+            toast({
+              title: "Email Not Verified",
+              description: "Please check your email and click the verification link before signing in. Check your spam folder if needed.",
+              variant: "destructive"
+            });
+          } else if (error.message.includes('Invalid login credentials')) {
+            toast({
+              title: "Invalid Credentials",
+              description: "Please check your email and password and try again.",
+              variant: "destructive"
+            });
+          } else {
+            toast({
+              title: "Login Failed",
+              description: error.message,
+              variant: "destructive"
+            });
+          }
         } else {
           toast({
             title: "Welcome back!",
@@ -68,15 +82,23 @@ const Login = () => {
 
         const { error } = await signUp(formData.email, formData.password, formData.firstName, formData.lastName);
         if (error) {
-          toast({
-            title: "Sign Up Failed",
-            description: error.message,
-            variant: "destructive"
-          });
+          if (error.message.includes('User already registered')) {
+            toast({
+              title: "Account Already Exists",
+              description: "An account with this email already exists. Please sign in instead.",
+              variant: "destructive"
+            });
+          } else {
+            toast({
+              title: "Sign Up Failed",
+              description: error.message,
+              variant: "destructive"
+            });
+          }
         } else {
           toast({
             title: "Account Created!",
-            description: "Please check your email to verify your account.",
+            description: "Please check your email to verify your account before signing in.",
           });
         }
       }
@@ -224,6 +246,15 @@ const Login = () => {
                 {loading ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}
               </Button>
             </form>
+
+            {/* Email verification notice for login */}
+            {isLogin && (
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-700">
+                  <strong>Note:</strong> You must verify your email before signing in. Check your inbox and click the verification link.
+                </p>
+              </div>
+            )}
 
             <div className="mt-6">
               <div className="relative">
