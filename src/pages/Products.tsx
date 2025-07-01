@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { useCartContext } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
@@ -91,6 +90,7 @@ const Products = () => {
   const [sortBy, setSortBy] = useState("name");
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [priceRange, setPriceRange] = useState([0, 1000]);
+  const [searchQuery, setSearchQuery] = useState("");
   const { addToCart } = useCartContext();
   const { toast } = useToast();
 
@@ -98,7 +98,12 @@ const Products = () => {
     let filtered = products.filter(product => {
       const categoryMatch = selectedCategory === "All" || product.category === selectedCategory;
       const priceMatch = product.price >= priceRange[0] && product.price <= priceRange[1];
-      return categoryMatch && priceMatch;
+      const searchMatch = searchQuery === "" || 
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      return categoryMatch && priceMatch && searchMatch;
     });
 
     filtered.sort((a, b) => {
@@ -117,7 +122,7 @@ const Products = () => {
     });
 
     return filtered;
-  }, [selectedCategory, sortBy, priceRange]);
+  }, [selectedCategory, sortBy, priceRange, searchQuery]);
 
   const handleAddToCart = (product: any) => {
     if (!product.inStock) {
@@ -156,6 +161,7 @@ const Products = () => {
   const handleClearFilters = () => {
     setSelectedCategory("All");
     setPriceRange([0, 1000]);
+    setSearchQuery("");
   };
 
   return (
@@ -164,6 +170,39 @@ const Products = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Products</h1>
           <p className="text-gray-600">Discover our amazing collection of products</p>
+        </div>
+
+        {/* Search Bar */}
+        <div className="mb-8">
+          <div className="relative max-w-2xl mx-auto">
+            <input
+              type="text"
+              placeholder="Search products, categories, or descriptions..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-3 pl-12 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm text-gray-900 placeholder-gray-500"
+            />
+            <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
+          {searchQuery && (
+            <p className="text-center text-gray-600 mt-2">
+              Searching for "{searchQuery}" - {filteredAndSortedProducts.length} results found
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">

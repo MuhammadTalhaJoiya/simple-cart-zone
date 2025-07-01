@@ -148,6 +148,69 @@ const productData: Record<number, {
       "Warranty": "5 years",
       "Assembly": "Required"
     }
+  },
+  5: {
+    id: 5,
+    name: "Wireless Gaming Mouse",
+    price: 79.99,
+    images: [
+      "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=600&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=600&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1563297007-0686b7003af7?w=600&h=600&fit=crop"
+    ],
+    rating: 4.5,
+    reviews: 203,
+    category: "Electronics",
+    inStock: true,
+    stockCount: 32,
+    description: "High-precision wireless gaming mouse with customizable RGB lighting, programmable buttons, and ultra-responsive sensor for competitive gaming.",
+    features: [
+      "High-precision 16,000 DPI sensor",
+      "Customizable RGB lighting",
+      "8 programmable buttons",
+      "Ultra-lightweight design (68g)",
+      "50-hour battery life",
+      "USB-C fast charging"
+    ],
+    specifications: {
+      "DPI": "Up to 16,000",
+      "Polling Rate": "1000 Hz",
+      "Battery Life": "50 hours",
+      "Weight": "68g",
+      "Connectivity": "2.4GHz Wireless + USB-C",
+      "Buttons": "8 programmable"
+    }
+  },
+  6: {
+    id: 6,
+    name: "Minimalist Desk Lamp",
+    price: 89.99,
+    images: [
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=600&h=600&fit=crop"
+    ],
+    rating: 4.4,
+    reviews: 78,
+    category: "Home",
+    inStock: false,
+    stockCount: 0,
+    description: "Modern minimalist LED desk lamp with adjustable brightness, color temperature control, and sleek aluminum design perfect for any workspace.",
+    features: [
+      "Adjustable brightness levels",
+      "Color temperature control",
+      "Touch control panel",
+      "USB charging port",
+      "Memory function",
+      "Aluminum construction"
+    ],
+    specifications: {
+      "Light Source": "LED",
+      "Brightness": "10-100% adjustable",
+      "Color Temperature": "3000K-6500K",
+      "Power": "12W",
+      "USB Port": "5V/1A",
+      "Material": "Aluminum"
+    }
   }
 };
 
