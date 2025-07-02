@@ -3,17 +3,17 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ShoppingCart, User, Search, Menu, X, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useCartContext } from '@/contexts/CartContext';
+import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/hooks/useAuth';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
-  const { getCartItemsCount } = useCartContext();
-  const { user, signOut, loading } = useAuth();
+  const { getTotalItems } = useCart();
+  const { user, logout, loading } = useAuth();
   
-  const cartItemsCount = getCartItemsCount();
+  const cartItemsCount = getTotalItems();
 
   const navigation = [
     { name: 'Home', href: '/' },
@@ -24,7 +24,7 @@ const Navbar = () => {
   const isActive = (path: string) => location.pathname === path;
 
   const handleSignOut = async () => {
-    await signOut();
+    await logout();
   };
 
   return (
@@ -81,7 +81,7 @@ const Navbar = () => {
                 {user ? (
                   <div className="hidden md:flex items-center space-x-3">
                     <span className="text-sm text-gray-600 font-medium">
-                      Welcome, {user.user_metadata?.first_name || user.email}
+                      Welcome, {user.firstName || user.email}
                     </span>
                     <Button variant="ghost" size="sm" onClick={handleSignOut} className="hover:bg-red-50 hover:text-red-600 transition-colors duration-300">
                       <LogOut className="w-4 h-4 mr-2" />

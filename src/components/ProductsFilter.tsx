@@ -3,19 +3,37 @@ import { Filter } from 'lucide-react';
 
 interface ProductsFilterProps {
   categories: string[];
-  selectedCategory: string;
-  onCategoryChange: (category: string) => void;
-  priceRange: number[];
-  onPriceRangeChange: (range: number[]) => void;
+  filters: {
+    category: string;
+    priceRange: [number, number];
+    search: string;
+  };
+  onFiltersChange: (filters: {
+    category: string;
+    priceRange: [number, number];
+    search: string;
+  }) => void;
 }
 
 const ProductsFilter = ({
   categories,
-  selectedCategory,
-  onCategoryChange,
-  priceRange,
-  onPriceRangeChange
+  filters,
+  onFiltersChange
 }: ProductsFilterProps) => {
+  const handleCategoryChange = (category: string) => {
+    onFiltersChange({
+      ...filters,
+      category
+    });
+  };
+
+  const handlePriceRangeChange = (maxPrice: number) => {
+    onFiltersChange({
+      ...filters,
+      priceRange: [0, maxPrice]
+    });
+  };
+
   return (
     <div className="lg:w-64 space-y-6">
       <div className="bg-white p-6 rounded-lg shadow-sm">
@@ -27,12 +45,22 @@ const ProductsFilter = ({
         <div className="mb-6">
           <h4 className="font-medium text-gray-900 mb-3">Categories</h4>
           <div className="space-y-2">
+            <button
+              onClick={() => handleCategoryChange("All")}
+              className={`block w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                filters.category === "All"
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              All
+            </button>
             {categories.map((category) => (
               <button
                 key={category}
-                onClick={() => onCategoryChange(category)}
+                onClick={() => handleCategoryChange(category)}
                 className={`block w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
-                  selectedCategory === category
+                  filters.category === category
                     ? 'bg-blue-100 text-blue-700'
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
@@ -50,13 +78,13 @@ const ProductsFilter = ({
               type="range"
               min="0"
               max="1000"
-              value={priceRange[1]}
-              onChange={(e) => onPriceRangeChange([0, parseInt(e.target.value)])}
+              value={filters.priceRange[1]}
+              onChange={(e) => handlePriceRangeChange(parseInt(e.target.value))}
               className="w-full"
             />
             <div className="flex justify-between text-sm text-gray-600">
               <span>$0</span>
-              <span>${priceRange[1]}</span>
+              <span>${filters.priceRange[1]}</span>
             </div>
           </div>
         </div>

@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -18,8 +19,7 @@ const Login = () => {
     lastName: ''
   });
 
-  const { signIn, signUp, user } = useAuth();
-  const { toast } = useToast();
+  const { login, register, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,117 +41,36 @@ const Login = () => {
 
     try {
       if (isLogin) {
-        console.log('Attempting to sign in with:', formData.email);
-        const { error } = await signIn(formData.email, formData.password);
-        
-        if (error) {
-          console.error('Sign in error:', error);
-          
-          if (error.message.includes('Email not confirmed') || error.message.includes('email_not_confirmed')) {
-            toast({
-              title: "Email Not Verified",
-              description: "Please check your email and click the verification link before signing in. Check your spam folder if needed.",
-              variant: "destructive"
-            });
-          } else if (error.message.includes('Invalid login credentials') || error.message.includes('invalid_credentials')) {
-            toast({
-              title: "Invalid Credentials",
-              description: "The email or password you entered is incorrect. Please check and try again.",
-              variant: "destructive"
-            });
-          } else if (error.message.includes('Too many requests')) {
-            toast({
-              title: "Too Many Attempts",
-              description: "Too many login attempts. Please wait a moment before trying again.",
-              variant: "destructive"
-            });
-          } else {
-            toast({
-              title: "Login Failed",
-              description: error.message || "An unexpected error occurred. Please try again.",
-              variant: "destructive"
-            });
-          }
-        } else {
-          console.log('Sign in successful');
-          toast({
-            title: "Welcome back!",
-            description: "You have successfully logged in.",
-          });
-        }
+        console.log('Attempting to login with:', formData.email);
+        await login(formData.email, formData.password);
+        console.log('Login successful');
       } else {
         if (formData.password !== formData.confirmPassword) {
-          toast({
-            title: "Password Mismatch",
-            description: "Passwords do not match. Please try again.",
-            variant: "destructive"
-          });
+          toast.error('Passwords do not match. Please try again.');
           return;
         }
 
         if (formData.password.length < 6) {
-          toast({
-            title: "Password Too Short",
-            description: "Password must be at least 6 characters long.",
-            variant: "destructive"
-          });
+          toast.error('Password must be at least 6 characters long.');
           return;
         }
 
-        console.log('Attempting to sign up with:', formData.email);
-        const { error } = await signUp(formData.email, formData.password, formData.firstName, formData.lastName);
+        console.log('Attempting to register with:', formData.email);
+        await register(formData.email, formData.password, formData.firstName, formData.lastName);
+        console.log('Registration successful');
         
-        if (error) {
-          console.error('Sign up error:', error);
-          
-          if (error.message.includes('User already registered') || error.message.includes('already_registered')) {
-            toast({
-              title: "Account Already Exists",
-              description: "An account with this email already exists. Please sign in instead.",
-              variant: "destructive"
-            });
-          } else if (error.message.includes('Password should be at least')) {
-            toast({
-              title: "Password Requirements",
-              description: "Password must be at least 6 characters long.",
-              variant: "destructive"
-            });
-          } else if (error.message.includes('Unable to validate email address')) {
-            toast({
-              title: "Invalid Email",
-              description: "Please enter a valid email address.",
-              variant: "destructive"
-            });
-          } else {
-            toast({
-              title: "Sign Up Failed",
-              description: error.message || "An unexpected error occurred. Please try again.",
-              variant: "destructive"
-            });
-          }
-        } else {
-          console.log('Sign up successful');
-          toast({
-            title: "Account Created!",
-            description: "Please check your email to verify your account before signing in.",
-          });
-          // Clear form after successful signup
-          setFormData({
-            email: '',
-            password: '',
-            confirmPassword: '',
-            firstName: '',
-            lastName: ''
-          });
-        }
+        // Clear form after successful signup
+        setFormData({
+          email: '',
+          password: '',
+          confirmPassword: '',
+          firstName: '',
+          lastName: ''
+        });
       }
     } catch (error) {
-      console.error('Unexpected error:', error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
-      });
+      console.error('Authentication error:', error);
+      // Error handling is done in the auth context
     } finally {
       setLoading(false);
     }
@@ -292,14 +211,6 @@ const Login = () => {
                 {loading ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}
               </Button>
             </form>
-
-            {isLogin && (
-              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-700">
-                  <strong>Note:</strong> You must verify your email before signing in. Check your inbox and click the verification link.
-                </p>
-              </div>
-            )}
 
             <div className="mt-6">
               <div className="relative">

@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useCartContext } from '@/contexts/CartContext';
+import { useCart } from '@/contexts/CartContext';
 
 const Cart = () => {
-  const { cartItems, updateQuantity, removeFromCart, getCartTotal, clearCart } = useCartContext();
+  const { items, updateQuantity, removeFromCart, getTotalPrice, clearCart } = useCart();
 
-  if (cartItems.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -28,14 +28,14 @@ const Cart = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Shopping Cart</h1>
-          <p className="text-gray-600">{cartItems.length} item{cartItems.length !== 1 ? 's' : ''} in your cart</p>
+          <p className="text-gray-600">{items.length} item{items.length !== 1 ? 's' : ''} in your cart</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
-            {cartItems.map((item) => (
-              <Card key={item.id} className="bg-white">
+            {items.map((item) => (
+              <Card key={item.cart_id} className="bg-white">
                 <CardContent className="p-6">
                   <div className="flex flex-col sm:flex-row gap-4">
                     <img 
@@ -46,7 +46,7 @@ const Cart = () => {
                     
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-900 mb-2">
-                        <Link to={`/product/${item.id}`} className="hover:text-blue-600 transition-colors">
+                        <Link to={`/products/${item.id}`} className="hover:text-blue-600 transition-colors">
                           {item.name}
                         </Link>
                       </h3>
@@ -57,7 +57,7 @@ const Cart = () => {
                           <span className="text-sm font-medium text-gray-700">Quantity:</span>
                           <div className="flex items-center border border-gray-300 rounded-md">
                             <button
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              onClick={() => updateQuantity(item.cart_id, item.quantity - 1)}
                               className="p-2 hover:bg-gray-100 transition-colors"
                             >
                               <Minus className="w-4 h-4" />
@@ -66,7 +66,7 @@ const Cart = () => {
                               {item.quantity}
                             </span>
                             <button
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              onClick={() => updateQuantity(item.cart_id, item.quantity + 1)}
                               className="p-2 hover:bg-gray-100 transition-colors"
                             >
                               <Plus className="w-4 h-4" />
@@ -107,8 +107,8 @@ const Cart = () => {
                 <h2 className="text-xl font-semibold text-gray-900 mb-6">Order Summary</h2>
                 
                 <div className="space-y-4">
-                  {cartItems.map((item) => (
-                    <div key={item.id} className="flex justify-between text-sm">
+                  {items.map((item) => (
+                    <div key={item.cart_id} className="flex justify-between text-sm">
                       <span className="text-gray-600">
                         {item.name} (×{item.quantity})
                       </span>
@@ -120,23 +120,23 @@ const Cart = () => {
                 <div className="border-t border-gray-200 mt-6 pt-6 space-y-3">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium">${getCartTotal().toFixed(2)}</span>
+                    <span className="font-medium">${getTotalPrice().toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Shipping</span>
                     <span className="font-medium">
-                      {getCartTotal() > 50 ? 'Free' : '$9.99'}
+                      {getTotalPrice() > 50 ? 'Free' : '$9.99'}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Tax</span>
-                    <span className="font-medium">${(getCartTotal() * 0.08).toFixed(2)}</span>
+                    <span className="font-medium">${(getTotalPrice() * 0.08).toFixed(2)}</span>
                   </div>
                   <div className="border-t border-gray-200 pt-3">
                     <div className="flex justify-between">
                       <span className="text-lg font-semibold text-gray-900">Total</span>
                       <span className="text-lg font-semibold text-gray-900">
-                        ${(getCartTotal() + (getCartTotal() > 50 ? 0 : 9.99) + (getCartTotal() * 0.08)).toFixed(2)}
+                        ${(getTotalPrice() + (getTotalPrice() > 50 ? 0 : 9.99) + (getTotalPrice() * 0.08)).toFixed(2)}
                       </span>
                     </div>
                   </div>
@@ -146,9 +146,9 @@ const Cart = () => {
                   <Link to="/checkout">Proceed to Checkout</Link>
                 </Button>
                 
-                {getCartTotal() < 50 && (
+                {getTotalPrice() < 50 && (
                   <p className="text-sm text-gray-600 text-center mt-4">
-                    Add ${(50 - getCartTotal()).toFixed(2)} more for free shipping!
+                    Add ${(50 - getTotalPrice()).toFixed(2)} more for free shipping!
                   </p>
                 )}
               </CardContent>
