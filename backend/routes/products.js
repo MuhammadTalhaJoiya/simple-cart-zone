@@ -45,12 +45,25 @@ router.get('/', async (req, res) => {
 
     // Apply sorting
     const validSortFields = ['name', 'price', 'rating', 'created_at'];
-    const validOrder = ['ASC', 'DESC'];
-    
+    let sortField = 'name';
+    let sortOrder = 'ASC';
+
     if (validSortFields.includes(sortBy)) {
-      const sortOrder = validOrder.includes(order.toUpperCase()) ? order.toUpperCase() : 'ASC';
-      query += ` ORDER BY ${sortBy} ${sortOrder}`;
+      sortField = sortBy;
     }
+
+    // Handle special cases for sorting
+    if (sortBy === 'price_desc') {
+      sortField = 'price';
+      sortOrder = 'DESC';
+    } else if (sortBy === 'price') {
+      sortField = 'price';
+      sortOrder = 'ASC';
+    } else if (order && ['ASC', 'DESC'].includes(order.toUpperCase())) {
+      sortOrder = order.toUpperCase();
+    }
+
+    query += ` ORDER BY ${sortField} ${sortOrder}`;
 
     // Apply pagination
     const offset = (parseInt(page) - 1) * parseInt(limit);

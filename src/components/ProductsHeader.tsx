@@ -14,7 +14,7 @@ const ProductsHeader = ({
 }: ProductsHeaderProps) => {
   const sortOptions = [
     { value: 'name', label: 'Name A-Z' },
-    { value: 'price_asc', label: 'Price: Low to High' },
+    { value: 'price', label: 'Price: Low to High' },
     { value: 'price_desc', label: 'Price: High to Low' },
     { value: 'created_at', label: 'Newest First' }
   ];
