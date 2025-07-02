@@ -1,6 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import ProductCard from './ProductCard';
+import { useCart } from '@/contexts/CartContext';
 
 interface Product {
   id: number;
@@ -21,6 +22,12 @@ interface ProductsListProps {
 }
 
 const ProductsList = ({ products, isLoading }: ProductsListProps) => {
+  const { addToCart } = useCart();
+
+  const handleAddToCart = (product: Product) => {
+    addToCart(product.id, 1);
+  };
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -50,6 +57,8 @@ const ProductsList = ({ products, isLoading }: ProductsListProps) => {
         <ProductCard
           key={product.id}
           product={product}
+          viewMode="grid"
+          onAddToCart={handleAddToCart}
         />
       ))}
     </div>
