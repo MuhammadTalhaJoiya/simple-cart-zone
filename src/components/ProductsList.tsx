@@ -57,6 +57,7 @@ const ProductsList = ({ products, isLoading }: ProductsListProps) => {
         <ProductCard
           key={product.id}
           product={product}
+          viewMode="grid"
           onAddToCart={() => handleAddToCart(product)}
         />
       ))}
