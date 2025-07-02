@@ -1,323 +1,225 @@
 
-import { useState } from 'react';
-import { Mail, Phone, MapPin, Clock, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { toast } from "sonner";
+import { apiClient } from "@/lib/api";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    subject: '',
-    message: ''
+    fullName: "",
+    email: "",
+    subject: "",
+    message: "",
   });
-  const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    
+    if (!formData.fullName || !formData.email || !formData.subject || !formData.message) {
+      toast.error("Please fill in all fields");
+      return;
+    }
 
+    setIsSubmitting(true);
+    
     try {
-      const { error } = await supabase
-        .from('contact_messages')
-        .insert([
-          {
-            full_name: formData.fullName,
-            email: formData.email,
-            subject: formData.subject,
-            message: formData.message
-          }
-        ]);
-
-      if (error) {
-        throw error;
-      }
-
-      toast({
-        title: "Message Sent!",
-        description: "Thank you for contacting us. We'll get back to you soon.",
-      });
-
-      // Reset form
+      await apiClient.submitContact(formData);
+      toast.success("Message sent successfully! We'll get back to you soon.");
       setFormData({
-        fullName: '',
-        email: '',
-        subject: '',
-        message: ''
+        fullName: "",
+        email: "",
+        subject: "",
+        message: "",
       });
     } catch (error) {
-      console.error('Error submitting contact form:', error);
-      toast({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
-        variant: "destructive"
-      });
+      console.error("Contact form error:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to send message. Please try again.");
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Contact Us</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Get in touch with us for any questions about our products or services
+          <h1 className="text-4xl font-bold mb-4">Contact Us</h1>
+          <p className="text-lg text-gray-600">
+            Have a question or need help? We'd love to hear from you.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          {/* Contact Information */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Mail className="w-5 h-5 text-blue-600" />
-                  Get In Touch
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <Phone className="w-5 h-5 text-gray-600" />
-                  <div>
-                    <p className="font-medium">Phone</p>
-                    <p className="text-gray-600">+1 (555) 123-4567</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-gray-600" />
-                  <div>
-                    <p className="font-medium">Email</p>
-                    <p className="text-gray-600">support@ecommerce.com</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <MapPin className="w-5 h-5 text-gray-600" />
-                  <div>
-                    <p className="font-medium">Address</p>
-                    <p className="text-gray-600">123 Commerce Street, Tech City, TC 12345</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-gray-600" />
-                  <div>
-                    <p className="font-medium">Business Hours</p>
-                    <p className="text-gray-600">Monday - Friday: 9AM - 6PM</p>
-                    <p className="text-gray-600">Saturday: 10AM - 4PM</p>
-                    <p className="text-gray-600">Sunday: Closed</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Social Media */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Follow Us</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex gap-4">
-                  <Button variant="outline" size="icon">
-                    <Facebook className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="icon">
-                    <Twitter className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="icon">
-                    <Instagram className="w-4 h-4" />
-                  </Button>
-                  <Button variant="outline" size="icon">
-                    <Linkedin className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Form */}
           <Card>
             <CardHeader>
-              <CardTitle>Send us a Message</CardTitle>
+              <CardTitle>Send us a message</CardTitle>
+              <CardDescription>
+                Fill out the form below and we'll get back to you as soon as possible.
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Your full name"
-                    required
-                  />
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="fullName" className="block text-sm font-medium mb-2">
+                      Full Name
+                    </label>
+                    <Input
+                      id="fullName"
+                      name="fullName"
+                      type="text"
+                      value={formData.fullName}
+                      onChange={handleInputChange}
+                      placeholder="Your full name"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium mb-2">
+                      Email
+                    </label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="your.email@example.com"
+                      required
+                    />
+                  </div>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="your.email@example.com"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="subject" className="block text-sm font-medium mb-2">
                     Subject
                   </label>
-                  <input
-                    type="text"
+                  <Input
+                    id="subject"
                     name="subject"
+                    type="text"
                     value={formData.subject}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="How can we help you?"
+                    placeholder="What's this about?"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="message" className="block text-sm font-medium mb-2">
                     Message
                   </label>
                   <Textarea
+                    id="message"
                     name="message"
                     value={formData.message}
                     onChange={handleInputChange}
-                    rows={5}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Tell us more about your inquiry..."
+                    rows={6}
                     required
                   />
                 </div>
                 
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Sending...' : 'Send Message'}
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? "Sending..." : "Send Message"}
                 </Button>
               </form>
             </CardContent>
           </Card>
+
+          {/* Contact Information */}
+          <div className="space-y-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Information</CardTitle>
+                <CardDescription>
+                  Reach out to us through any of these channels.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-start space-x-3">
+                  <MapPin className="h-5 w-5 text-primary mt-1" />
+                  <div>
+                    <h3 className="font-medium">Address</h3>
+                    <p className="text-gray-600">
+                      123 Commerce Street<br />
+                      Business District<br />
+                      City, State 12345
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <Phone className="h-5 w-5 text-primary mt-1" />
+                  <div>
+                    <h3 className="font-medium">Phone</h3>
+                    <p className="text-gray-600">+1 (555) 123-4567</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <Mail className="h-5 w-5 text-primary mt-1" />
+                  <div>
+                    <h3 className="font-medium">Email</h3>
+                    <p className="text-gray-600">support@ecommerce.com</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <Clock className="h-5 w-5 text-primary mt-1" />
+                  <div>
+                    <h3 className="font-medium">Business Hours</h3>
+                    <p className="text-gray-600">
+                      Monday - Friday: 9:00 AM - 6:00 PM<br />
+                      Saturday: 10:00 AM - 4:00 PM<br />
+                      Sunday: Closed
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Frequently Asked Questions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <h4 className="font-medium mb-1">How long does shipping take?</h4>
+                  <p className="text-sm text-gray-600">
+                    Standard shipping takes 3-5 business days, while express shipping takes 1-2 business days.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-1">What's your return policy?</h4>
+                  <p className="text-sm text-gray-600">
+                    We offer a 30-day return policy for all items in original condition.
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-1">Do you offer international shipping?</h4>
+                  <p className="text-sm text-gray-600">
+                    Yes, we ship to most countries worldwide. Shipping costs vary by location.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-
-        {/* About Us Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          <Card>
-            <CardHeader>
-              <CardTitle>About ECommerce</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 leading-relaxed mb-4">
-                We are a leading online retailer dedicated to providing high-quality products 
-                at competitive prices. Our mission is to make shopping convenient, affordable, 
-                and enjoyable for everyone.
-              </p>
-              <p className="text-gray-600 leading-relaxed">
-                Founded in 2020, we have grown to serve thousands of customers worldwide, 
-                offering everything from electronics to home goods with exceptional customer service.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Our Product Categories</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-blue-900 mb-2">Electronics</h4>
-                  <p className="text-sm text-blue-700">
-                    Headphones, smartwatches, cameras, and gaming accessories
-                  </p>
-                </div>
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-green-900 mb-2">Furniture</h4>
-                  <p className="text-sm text-green-700">
-                    Office chairs, desks, and ergonomic workplace solutions
-                  </p>
-                </div>
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-purple-900 mb-2">Photography</h4>
-                  <p className="text-sm text-purple-700">
-                    Professional camera lenses and photography equipment
-                  </p>
-                </div>
-                <div className="bg-orange-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-orange-900 mb-2">Home</h4>
-                  <p className="text-sm text-orange-700">
-                    Lighting, decor, and modern home accessories
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Customer Service */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Customer Service</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Phone className="w-8 h-8 text-blue-600" />
-                </div>
-                <h4 className="font-semibold mb-2">24/7 Support</h4>
-                <p className="text-gray-600 text-sm">
-                  Our customer service team is available around the clock to help you
-                </p>
-              </div>
-              
-              <div className="text-center">
-                <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Mail className="w-8 h-8 text-green-600" />
-                </div>
-                <h4 className="font-semibold mb-2">Quick Response</h4>
-                <p className="text-gray-600 text-sm">
-                  We respond to all inquiries within 24 hours
-                </p>
-              </div>
-              
-              <div className="text-center">
-                <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <MapPin className="w-8 h-8 text-purple-600" />
-                </div>
-                <h4 className="font-semibold mb-2">Multiple Locations</h4>
-                <p className="text-gray-600 text-sm">
-                  Visit us at any of our store locations nationwide
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
