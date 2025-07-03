@@ -37,10 +37,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
+      console.log('Checking auth status with token:', token);
       const response = await apiClient.getCurrentUser();
+      console.log('Auth check response:', response);
       setUser(response.user);
     } catch (error) {
-      console.log('No valid session found');
+      console.log('No valid session found:', error);
       localStorage.removeItem('auth_token');
     } finally {
       setLoading(false);
@@ -49,44 +51,63 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
+      console.log('Login attempt for:', email);
       const response = await apiClient.login({ email, password });
-      localStorage.setItem('auth_token', response.token);
-      setUser(response.user);
-      toast.success('Login successful!');
+      console.log('Login response:', response);
+      
+      if (response.token) {
+        localStorage.setItem('auth_token', response.token);
+        setUser(response.user);
+        toast.success('Login successful!');
+      } else {
+        throw new Error('No token received from server');
+      }
     } catch (error) {
       console.error('Login error:', error);
-      toast.error(error instanceof Error ? error.message : 'Login failed');
+      const errorMessage = error instanceof Error ? error.message : 'Login failed';
+      toast.error(errorMessage);
       throw error;
     }
   };
 
   const register = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
+      console.log('Registration attempt for:', email);
       const response = await apiClient.register({
         email,
         password,
         firstName,
         lastName,
       });
-      localStorage.setItem('auth_token', response.token);
-      setUser(response.user);
-      toast.success('Registration successful!');
+      console.log('Registration response:', response);
+      
+      if (response.token) {
+        localStorage.setItem('auth_token', response.token);
+        setUser(response.user);
+        toast.success('Registration successful!');
+      } else {
+        throw new Error('No token received from server');
+      }
     } catch (error) {
       console.error('Registration error:', error);
-      toast.error(error instanceof Error ? error.message : 'Registration failed');
+      const errorMessage = error instanceof Error ? error.message : 'Registration failed';
+      toast.error(errorMessage);
       throw error;
     }
   };
 
   const logout = async () => {
     try {
+      console.log('Logging out user');
       await apiClient.logout();
     } catch (error) {
       console.error('Logout error:', error);
+      // Continue with logout even if API call fails
     } finally {
       localStorage.removeItem('auth_token');
       setUser(null);
       toast.success('Logged out successfully');
+      console.log('User logged out, token removed');
     }
   };
 

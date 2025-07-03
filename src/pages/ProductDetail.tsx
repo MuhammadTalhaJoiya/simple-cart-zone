@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ArrowLeft, Star, ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { apiClient } from "@/lib/api";
@@ -13,10 +14,11 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
-  const { data: product, isLoading, error } = useQuery({
+  const { data: product, isLoading, error, refetch } = useQuery({
     queryKey: ["product", id],
     queryFn: () => apiClient.getProduct(id!),
     enabled: !!id,
+    retry: 1,
   });
 
   if (isLoading) {
@@ -40,17 +42,39 @@ const ProductDetail = () => {
   }
 
   if (error) {
+    const errorMessage = error instanceof Error ? error.message : "Failed to load product details.";
+    
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Product</h2>
-          <p className="text-gray-600 mb-4">
-            {error instanceof Error ? error.message : "Failed to load product details."}
-          </p>
-          <Button onClick={() => navigate("/products")}>
-            Back to Products
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/products")}
+          className="mb-6"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Products
+        </Button>
+
+        <Alert variant="destructive">
+          <AlertDescription>
+            <div className="space-y-4">
+              <p><strong>Error Loading Product:</strong> {errorMessage}</p>
+              {errorMessage.includes('Unable to connect to server') && (
+                <div className="text-sm">
+                  <p>Please ensure your backend server is running on http://localhost:5000</p>
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Button onClick={() => refetch()} variant="outline" size="sm">
+                  Try Again
+                </Button>
+                <Button onClick={() => navigate("/products")} size="sm">
+                  Back to Products
+                </Button>
+              </div>
+            </div>
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }
@@ -58,6 +82,15 @@ const ProductDetail = () => {
   if (!product) {
     return (
       <div className="container mx-auto px-4 py-8">
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/products")}
+          className="mb-6"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Products
+        </Button>
+        
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">Product Not Found</h2>
           <p className="text-gray-600 mb-4">The product you're looking for doesn't exist.</p>
@@ -70,7 +103,11 @@ const ProductDetail = () => {
   }
 
   const handleAddToCart = async () => {
-    await addToCart(product.id);
+    try {
+      await addToCart(product.id);
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+    }
   };
 
   return (
@@ -105,8 +142,8 @@ const ProductDetail = () => {
             <div className="flex items-center space-x-2 mb-4">
               <div className="flex items-center">
                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span className="ml-1 text-sm font-medium">{product.rating}</span>
-                <span className="ml-1 text-sm text-gray-500">({product.reviews} reviews)</span>
+                <span className="ml-1 text-sm font-medium">{product.rating || 0}</span>
+                <span className="ml-1 text-sm text-gray-500">({product.reviews || 0} reviews)</span>
               </div>
               <Badge variant={product.in_stock ? "default" : "destructive"}>
                 {product.in_stock ? "In Stock" : "Out of Stock"}

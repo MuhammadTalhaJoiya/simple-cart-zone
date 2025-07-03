@@ -5,6 +5,8 @@ import ProductsHeader from "@/components/ProductsHeader";
 import ProductsFilter from "@/components/ProductsFilter";
 import ProductsList from "@/components/ProductsList";
 import { apiClient } from "@/lib/api";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 const Products = () => {
   const [filters, setFilters] = useState({
@@ -14,7 +16,7 @@ const Products = () => {
   });
   const [sortBy, setSortBy] = useState("name");
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["products", filters, sortBy],
     queryFn: () =>
       apiClient.getProducts({
@@ -25,24 +27,44 @@ const Products = () => {
         sortBy,
         order: "ASC",
       }),
+    retry: 1,
   });
 
-  const { data: categories } = useQuery({
+  const { data: categories, error: categoriesError } = useQuery({
     queryKey: ["categories"],
     queryFn: () => apiClient.getCategories(),
+    retry: 1,
   });
 
   const products = data?.products || [];
 
-  if (error) {
+  if (error || categoriesError) {
+    const errorMessage = error instanceof Error ? error.message : 
+                        categoriesError instanceof Error ? categoriesError.message : 
+                        "Failed to load products. Please try again.";
+    
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Products</h2>
-          <p className="text-gray-600">
-            {error instanceof Error ? error.message : "Failed to load products. Please try again."}
-          </p>
-        </div>
+        <Alert variant="destructive" className="mb-6">
+          <AlertDescription>
+            <div className="space-y-4">
+              <p><strong>Connection Error:</strong> {errorMessage}</p>
+              {errorMessage.includes('Unable to connect to server') && (
+                <div className="text-sm">
+                  <p>Possible solutions:</p>
+                  <ul className="list-disc list-inside mt-2 space-y-1">
+                    <li>Make sure your backend server is running on http://localhost:5000</li>
+                    <li>Check if the server is accepting connections</li>
+                    <li>Verify your database connection is working</li>
+                  </ul>
+                </div>
+              )}
+              <Button onClick={() => refetch()} variant="outline" size="sm">
+                Try Again
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
       </div>
     );
   }

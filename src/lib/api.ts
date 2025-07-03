@@ -24,17 +24,27 @@ class ApiClient {
       ...options,
     };
 
+    console.log('Making API request to:', url);
+    console.log('Request config:', config);
+
     try {
       const response = await fetch(url, config);
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        const errorMessage = errorData.error || errorData.message || `HTTP error! status: ${response.status}`;
+        console.error('API error response:', errorData);
+        throw new Error(errorMessage);
       }
 
-      return await response.json();
+      const data = await response.json();
+      console.log('API response:', data);
+      return data;
     } catch (error) {
       console.error('API request failed:', error);
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        throw new Error('Unable to connect to server. Please ensure the backend is running on http://localhost:5000');
+      }
       throw error;
     }
   }
@@ -46,6 +56,7 @@ class ApiClient {
     firstName: string;
     lastName: string;
   }) {
+    console.log('Registering user:', userData.email);
     return this.request<{
       message: string;
       user: any;
@@ -57,6 +68,7 @@ class ApiClient {
   }
 
   async login(credentials: { email: string; password: string }) {
+    console.log('Logging in user:', credentials.email);
     return this.request<{
       message: string;
       user: any;
