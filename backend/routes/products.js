@@ -71,13 +71,17 @@ router.get('/', async (req, res) => {
       sortOrder = order.toUpperCase();
     }
 
-    query += ` ORDER BY ${sortField} ${sortOrder}`;
+    // Safe ORDER BY construction (using template since these are validated against whitelist)
+    query += ` ORDER BY \`${sortField}\` ${sortOrder}`;
     console.log('Added sorting:', sortField, sortOrder);
 
-    // Apply pagination
+    // Apply pagination with proper parameter binding
     const offset = (parseInt(page) - 1) * parseInt(limit);
+    const limitValue = parseInt(limit);
+    
+    // For MySQL compatibility, use standard LIMIT OFFSET syntax
     query += ' LIMIT ? OFFSET ?';
-    params.push(parseInt(limit), offset);
+    params.push(limitValue, offset);
 
     console.log('Final query:', query);
     console.log('Query params:', params);
