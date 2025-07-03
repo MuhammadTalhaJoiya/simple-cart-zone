@@ -6,6 +6,7 @@ dotenv.config();
 
 // Database connection instance
 let db = null;
+let isMySQL = false;
 
 async function createDatabaseConnection() {
   try {
@@ -27,17 +28,29 @@ async function createDatabaseConnection() {
     const testPool = pool.promise();
     await testPool.execute('SELECT 1');
     console.log('✅ MySQL Database connected successfully');
+    isMySQL = true;
     return testPool;
   } catch (error) {
     console.log('❌ MySQL connection failed, falling back to SQLite:', error.message);
     
     // Fall back to SQLite
     const sqliteDb = new sqlite3.Database('./database.sqlite');
+    isMySQL = false;
     
     // Create a promise-based wrapper for SQLite
     const sqliteWrapper = {
       execute: (query, params = []) => {
         return new Promise((resolve, reject) => {
+          // Convert MySQL LIMIT OFFSET syntax to SQLite compatible
+          if (query.includes('LIMIT ? OFFSET ?')) {
+            query = query.replace('LIMIT ? OFFSET ?', 'LIMIT ?, ?');
+            // Swap the parameters: SQLite expects (offset, limit)
+            if (params.length >= 2) {
+              const lastTwo = params.slice(-2);
+              params = [...params.slice(0, -2), lastTwo[1], lastTwo[0]];
+            }
+          }
+          
           if (query.trim().toUpperCase().startsWith('SELECT')) {
             sqliteDb.all(query, params, (err, rows) => {
               if (err) reject(err);
