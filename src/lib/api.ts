@@ -31,9 +31,14 @@ class ApiClient {
       const response = await fetch(url, config);
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const errorMessage = errorData.error || errorData.message || `HTTP error! status: ${response.status}`;
-        console.error('API error response:', errorData);
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || errorMessage;
+          console.error('API error response:', errorData);
+        } catch (e) {
+          console.error('Failed to parse error response');
+        }
         throw new Error(errorMessage);
       }
 

@@ -7,12 +7,12 @@ interface Product {
   id: number;
   name: string;
   price: number;
-  originalPrice?: number;
+  original_price?: number;
   image: string;
   rating: number;
   reviews: number;
   category: string;
-  inStock: boolean;
+  in_stock: boolean;
   description: string;
 }
 

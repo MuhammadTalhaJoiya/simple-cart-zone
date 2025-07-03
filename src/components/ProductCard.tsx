@@ -8,12 +8,12 @@ interface Product {
   id: number;
   name: string;
   price: number;
-  originalPrice?: number;
+  original_price?: number;
   image: string;
   rating: number;
   reviews: number;
   category: string;
-  inStock: boolean;
+  in_stock: boolean;
   description: string;
 }
 
@@ -24,15 +24,21 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product, viewMode, onAddToCart }: ProductCardProps) => {
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const target = e.target as HTMLImageElement;
+    target.src = "/placeholder.svg";
+  };
+
   return (
     <Card className={`group hover:shadow-lg transition-all duration-300 bg-white ${viewMode === 'list' ? 'flex flex-row' : 'hover:-translate-y-1'}`}>
       <div className={`relative overflow-hidden ${viewMode === 'list' ? 'w-48 flex-shrink-0' : 'rounded-t-lg'}`}>
         <img 
-          src={product.image} 
+          src={product.image || "/placeholder.svg"} 
           alt={product.name}
           className={`object-cover group-hover:scale-110 transition-transform duration-300 ${viewMode === 'list' ? 'w-full h-full' : 'w-full h-48'}`}
+          onError={handleImageError}
         />
-        {!product.inStock && (
+        {!product.in_stock && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
             <span className="text-white font-semibold">Out of Stock</span>
           </div>
@@ -45,10 +51,10 @@ const ProductCard = ({ product, viewMode, onAddToCart }: ProductCardProps) => {
             {[...Array(5)].map((_, i) => (
               <Star 
                 key={i} 
-                className={`w-4 h-4 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                className={`w-4 h-4 ${i < Math.floor(product.rating || 0) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
               />
             ))}
-            <span className="text-sm text-gray-600 ml-1">({product.reviews})</span>
+            <span className="text-sm text-gray-600 ml-1">({product.reviews || 0})</span>
           </div>
           
           <h3 className="font-semibold text-gray-900 mb-2">
@@ -63,8 +69,8 @@ const ProductCard = ({ product, viewMode, onAddToCart }: ProductCardProps) => {
           
           <div className="flex items-center gap-2 mb-3">
             <span className="text-lg font-bold text-gray-900">${product.price}</span>
-            {product.originalPrice && (
-              <span className="text-sm text-gray-500 line-through">${product.originalPrice}</span>
+            {product.original_price && (
+              <span className="text-sm text-gray-500 line-through">${product.original_price}</span>
             )}
           </div>
         </div>
@@ -75,7 +81,7 @@ const ProductCard = ({ product, viewMode, onAddToCart }: ProductCardProps) => {
           </Button>
           <Button 
             onClick={() => onAddToCart(product)}
-            disabled={!product.inStock}
+            disabled={!product.in_stock}
             className="flex-1"
           >
             <ShoppingCart className="w-4 h-4 mr-2" />

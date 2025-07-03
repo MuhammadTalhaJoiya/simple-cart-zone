@@ -110,6 +110,11 @@ const ProductDetail = () => {
     }
   };
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const target = e.target as HTMLImageElement;
+    target.src = "/placeholder.svg";
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <Button
@@ -128,10 +133,7 @@ const ProductDetail = () => {
             src={product.image || "/placeholder.svg"}
             alt={product.name}
             className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = "/placeholder.svg";
-            }}
+            onError={handleImageError}
           />
         </div>
 
