@@ -29,6 +29,8 @@ const ProductCard = ({ product, viewMode, onAddToCart }: ProductCardProps) => {
     target.src = "/placeholder.svg";
   };
 
+  console.log('ProductCard - Product ID:', product.id, 'Link will be:', `/products/${product.id}`);
+
   return (
     <Card className={`group hover:shadow-lg transition-all duration-300 bg-white ${viewMode === 'list' ? 'flex flex-row' : 'hover:-translate-y-1'}`}>
       <div className={`relative overflow-hidden ${viewMode === 'list' ? 'w-48 flex-shrink-0' : 'rounded-t-lg'}`}>
