@@ -14,9 +14,14 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
+  console.log('ProductDetail component - Product ID from params:', id);
+
   const { data: product, isLoading, error, refetch } = useQuery({
     queryKey: ["product", id],
-    queryFn: () => apiClient.getProduct(id!),
+    queryFn: () => {
+      console.log('Fetching product with ID:', id);
+      return apiClient.getProduct(id!);
+    },
     enabled: !!id,
     retry: 1,
   });

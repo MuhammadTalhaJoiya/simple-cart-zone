@@ -58,7 +58,7 @@ const ProductCard = ({ product, viewMode, onAddToCart }: ProductCardProps) => {
           </div>
           
           <h3 className="font-semibold text-gray-900 mb-2">
-            <Link to={`/product/${product.id}`} className="hover:text-blue-600 transition-colors">
+            <Link to={`/products/${product.id}`} className="hover:text-blue-600 transition-colors">
               {product.name}
             </Link>
           </h3>
@@ -77,7 +77,7 @@ const ProductCard = ({ product, viewMode, onAddToCart }: ProductCardProps) => {
         
         <div className={`flex gap-2 ${viewMode === 'list' ? 'mt-4' : ''}`}>
           <Button asChild variant="outline" className="flex-1">
-            <Link to={`/product/${product.id}`}>View Details</Link>
+            <Link to={`/products/${product.id}`}>View Details</Link>
           </Button>
           <Button 
             onClick={() => onAddToCart(product)}

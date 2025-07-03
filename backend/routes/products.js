@@ -7,6 +7,8 @@ const router = express.Router();
 // Get all products with filtering and sorting
 router.get('/', async (req, res) => {
   try {
+    console.log('GET /api/products - Request received with query:', req.query);
+    
     const { 
       category, 
       minPrice, 
@@ -70,6 +72,7 @@ router.get('/', async (req, res) => {
     query += ' LIMIT ? OFFSET ?';
     params.push(parseInt(limit), offset);
 
+    console.log('Executing query:', query, 'with params:', params);
     const [products] = await db.execute(query, params);
 
     // Get total count for pagination
@@ -100,6 +103,8 @@ router.get('/', async (req, res) => {
     const [countResult] = await db.execute(countQuery, countParams);
     const total = countResult[0].total;
 
+    console.log(`Found ${products.length} products, total: ${total}`);
+
     res.json({
       products,
       pagination: {
@@ -118,6 +123,8 @@ router.get('/', async (req, res) => {
 // Get single product
 router.get('/:id', async (req, res) => {
   try {
+    console.log('GET /api/products/:id - Request received for product ID:', req.params.id);
+    
     const { id } = req.params;
 
     const [products] = await db.execute(
@@ -126,9 +133,11 @@ router.get('/:id', async (req, res) => {
     );
 
     if (products.length === 0) {
+      console.log('Product not found with ID:', id);
       return res.status(404).json({ error: 'Product not found' });
     }
 
+    console.log('Product found:', products[0]);
     res.json(products[0]);
   } catch (error) {
     console.error('Get product error:', error);
@@ -136,14 +145,18 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Get product categories
+// Get product categories - Fixed the route path
 router.get('/categories/list', async (req, res) => {
   try {
+    console.log('GET /api/products/categories/list - Request received');
+    
     const [categories] = await db.execute(
       'SELECT DISTINCT category FROM products WHERE category IS NOT NULL ORDER BY category'
     );
 
     const categoryList = ['All', ...categories.map(cat => cat.category)];
+    console.log('Categories found:', categoryList);
+    
     res.json(categoryList);
   } catch (error) {
     console.error('Get categories error:', error);
